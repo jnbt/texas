@@ -2,6 +2,15 @@ module Texas
   module Build
     module Task
       class PublishPDF < Base
+        DEFAULT_TEX_COMMAND = "pdflatex"
+
+        def cmd
+          @cmd ||= scripts && scripts['tex']
+        end
+
+        def scripts
+          build.config['script']
+        end
 
         def master_file
           build.master_file
@@ -27,17 +36,28 @@ module Texas
           verbose {
             file = File.join(build_path, "master.log")
             output = `grep "Output written on" #{file}`
-            numbers = output.scan(/\((\d+?) pages?\, (\d+?) bytes\)\./).flatten
-            @page_count = numbers.first.to_i
+            @page_count = output[/(\d+?) pages?/, 1]
             "Written PDF in #{dest_file.gsub(build.root, '')} (#{@page_count} pages)".green
           }
         end
 
         def run_pdflatex
-          verbose { "Running pdflatex in #{build_path} ..." }
-          Dir.chdir build_path
-          `pdflatex #{File.basename(master_file)}`
-          `pdflatex #{File.basename(master_file)}`
+          if process_tex_cmd
+            verbose { "Running #{process_tex_cmd} in #{build_path} ..." }
+            Dir.chdir build_path
+            2.times do
+              `#{process_tex_cmd} #{File.basename(master_file)}`
+            end
+          else
+            puts "Can't publish PDF: no default command recognized. Specify in #{Build::Base::CONFIG_FILE}"
+          end
+        end
+
+        def process_tex_cmd
+          cmd || begin
+            default = `which #{DEFAULT_TEX_COMMAND}`.strip
+            default.empty? ? nil : default
+          end
         end
 
       end
