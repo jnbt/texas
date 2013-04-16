@@ -25,7 +25,7 @@ module Texas
         end
 
         def run
-          run_pdflatex
+          run_tex
           copy_pdf_file_to_dest_dir
         end
 
@@ -41,7 +41,7 @@ module Texas
           }
         end
 
-        def run_pdflatex
+        def run_tex
           if process_tex_cmd
             verbose { "Running #{process_tex_cmd} in #{build_path} ..." }
             Dir.chdir build_path
