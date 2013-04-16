@@ -44,9 +44,10 @@ module Texas
         def run_tex
           if process_tex_cmd
             verbose { "Running #{process_tex_cmd} in #{build_path} ..." }
-            Dir.chdir build_path
-            2.times do
-              `#{process_tex_cmd} #{File.basename(master_file)}`
+            Dir.chdir build_path do
+              2.times do
+                `#{process_tex_cmd} #{File.basename(master_file)}`
+              end
             end
           else
             puts "Can't publish PDF: no default command recognized. Specify in #{Build::Base::CONFIG_FILE}"

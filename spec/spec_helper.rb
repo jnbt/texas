@@ -45,6 +45,7 @@ def run_scenario(scenario, options = {}, &block)
     yield runner
   else
     match_should_templates work_dir
+    should_not_change_pwd  work_dir
   end
 end
 
@@ -54,6 +55,10 @@ def match_should_templates(work_dir)
     generated_file = should_file.gsub(/\.should$/, '')
     File.read(generated_file).should == File.read(should_file)
   end
+end
+
+def should_not_change_pwd(original_dir)
+  original_dir.should == Dir.pwd
 end
 
 RSpec.configure do |config|
